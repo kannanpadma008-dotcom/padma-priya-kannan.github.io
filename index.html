@@ -166,31 +166,55 @@
   .gthumb{
     padding:0; margin:0; border:1px solid var(--line); background:var(--bg);
     border-radius:var(--radius); overflow:hidden; cursor:zoom-in;
-    aspect-ratio:4/3; display:block; width:100%;
-    transition:border-color .15s, transform .15s;
+    aspect-ratio:4/3; display:block; width:100%; position:relative;
+    transition:border-color .2s, transform .2s, box-shadow .2s;
   }
-  .gthumb:hover{border-color:var(--copper); transform:translateY(-2px);}
-  .gthumb img{width:100%; height:100%; object-fit:cover; display:block;}
+  .gthumb:hover{border-color:var(--copper); transform:translateY(-2px); box-shadow:0 6px 16px -6px rgba(181,98,44,0.3);}
+  .gthumb img{width:100%; height:100%; object-fit:cover; display:block; transition:transform .25s ease;}
+  .gthumb:hover img{transform:scale(1.05);}
 
-  /* LIGHTBOX */
+  /* LIGHTBOX MODAL (POP-OUT) */
   .lightbox{
-    position:fixed; inset:0; background:rgba(15,17,19,0.94);
+    position:fixed; inset:0; background:rgba(15,17,19,0.92);
+    backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
     display:none; align-items:center; justify-content:center;
-    z-index:200; padding:56px 24px;
+    z-index:200; padding:48px 24px; opacity:0;
+    transition:opacity .25s ease;
   }
-  .lightbox.open{display:flex;}
-  .lightbox figure{margin:0; max-width:min(92vw, 1000px); text-align:center;}
-  .lightbox img{max-width:100%; max-height:76vh; border-radius:var(--radius); display:block; margin:0 auto; box-shadow:0 30px 70px -20px rgba(0,0,0,0.6);}
+  .lightbox.open{display:flex; opacity:1;}
+  @keyframes lightboxPop {
+    0% { opacity:0; transform:scale(0.88); }
+    100% { opacity:1; transform:scale(1); }
+  }
+  .lightbox.open figure{
+    animation:lightboxPop 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .lightbox figure{margin:0; max-width:min(92vw, 1000px); text-align:center; position:relative;}
+  .lightbox img{
+    max-width:100%; max-height:76vh; border-radius:var(--radius); display:block; margin:0 auto;
+    box-shadow:0 30px 70px -20px rgba(0,0,0,0.7); border:1px solid rgba(255,255,255,0.12);
+  }
   .lightbox figcaption{
-    color:#EDEBE6; font-family:var(--mono); font-size:13px;
-    margin-top:16px; letter-spacing:0.02em;
+    color:#EDEBE6; font-family:var(--mono); font-size:13.5px;
+    margin-top:16px; letter-spacing:0.02em; line-height:1.4;
   }
   .lightbox-close{
-    position:absolute; top:20px; right:26px; background:none; border:none;
-    color:#EDEBE6; font-family:var(--mono); font-size:14px; letter-spacing:0.06em;
-    text-transform:uppercase; cursor:pointer; padding:8px 12px;
+    position:absolute; top:20px; right:26px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15);
+    color:#EDEBE6; font-size:22px; width:42px; height:42px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:background .18s, color .18s, transform .18s; z-index:210;
   }
-  .lightbox-close:hover{color:var(--copper);}
+  .lightbox-close:hover{background:var(--copper); color:#FFF; transform:scale(1.08);}
+  .lightbox-nav{
+    position:absolute; top:50%; transform:translateY(-50%);
+    background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15);
+    color:#EDEBE6; font-size:32px; width:48px; height:48px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:background .18s, color .18s, transform .18s; z-index:210;
+  }
+  .lightbox-prev{left:24px;}
+  .lightbox-next{right:24px;}
+  .lightbox-nav:hover{background:var(--copper); color:#FFF; transform:translateY(-50%) scale(1.08);}
 
   /* WRITING */
   .post-card{
@@ -223,10 +247,19 @@
   .pub-link{font-family:var(--mono); font-size:12px; white-space:nowrap; text-decoration:none; color:var(--teal);}
   .pub-link:hover{color:var(--copper-deep);}
 
-  /* CONTACT */
+  /* CONTACT BOX */
+  .contact-card{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:48px; box-shadow:0 10px 30px -10px rgba(25,30,34,0.08);
+    position:relative; overflow:hidden;
+  }
+  .contact-card::before{
+    content:''; position:absolute; top:0; left:0; right:0; height:4px;
+    background:linear-gradient(90deg, var(--copper), var(--teal));
+  }
   .contact-grid{display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start;}
   .contact-lede{font-size:18px; color:var(--ink-soft); max-width:44ch; margin:0;}
-  .contact-list{list-style:none; margin:24px 0 0; padding:0; display:flex; flex-direction:column; gap:14px;}
+  .contact-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:14px;}
   .contact-list li{font-family:var(--mono); font-size:14.5px;}
   .contact-list a{color:var(--ink); text-decoration:none; border-bottom:1px solid var(--copper);}
   .contact-list a:hover{color:var(--copper-deep);}
@@ -244,6 +277,10 @@
     .about-grid, .research-grid, .contact-grid{grid-template-columns:1fr; gap:32px;}
     .hero-inner{padding:88px 20px 64px;}
     section{padding:64px 0;}
+    .contact-card{padding:32px 20px;}
+    .lightbox-prev{left:10px;}
+    .lightbox-next{right:10px;}
+    .lightbox-nav{width:38px; height:38px; font-size:24px;}
   }
 
   @media (prefers-reduced-motion: reduce){
@@ -447,7 +484,8 @@
 </section>
 <section id="contact">
 <div class="wrap">
-<div class="section-head">
+<div class="contact-card">
+<div class="section-head" style="margin-bottom:28px;">
 <p class="section-label">Contact</p>
 <h2 class="section-title">Let's talk about a thesis position</h2>
 </div>
@@ -459,6 +497,7 @@
 <li>LinkedIn — <a href="https://www.linkedin.com/in/padma-priya-kannan-476a54227/" rel="noopener" target="_blank">linkedin.com/in/padma-priya-kannan</a></li>
 <li>CV — <a href="https://drive.google.com/file/d/1Xr3DEKqFvLYgTn4EMOXsBV3Y3JFXRNxT/view?usp=drive_link" rel="noopener" target="_blank">View CV</a></li>
 </ul>
+</div>
 </div>
 </div>
 </div>
@@ -566,5 +605,79 @@
   animate();
 })();
 </script>
-<div class="lightbox"><button class="lightbox-close">Close</button><figure><img src=""/><figcaption></figcaption></figure></div><script>document.addEventListener('DOMContentLoaded',()=>{const l=document.querySelector('.lightbox');if(!l)return;const i=l.querySelector('img'),c=l.querySelector('figcaption'),b=l.querySelector('.lightbox-close');document.querySelectorAll('.gthumb').forEach(t=>{if(!t.dataset.full){const m=t.querySelector('img');if(m)t.dataset.full=m.src;}t.onclick=()=>{const m=t.querySelector('img');i.src=t.dataset.full||m.src;c.textContent=t.dataset.caption||'';l.classList.add('open');};});b.onclick=()=>l.classList.remove('open');l.onclick=e=>{if(e.target===l)l.classList.remove('open');};document.onkeydown=e=>{if(e.key==='Escape')l.classList.remove('open');};});</script></body>
+<div class="lightbox" role="dialog" aria-modal="true">
+  <button class="lightbox-close" title="Close (Esc)" aria-label="Close lightbox">&times;</button>
+  <button class="lightbox-nav lightbox-prev" title="Previous image (Left Arrow)" aria-label="Previous image">&#8249;</button>
+  <figure>
+    <img src="" alt="Enlarged view"/>
+    <figcaption></figcaption>
+  </figure>
+  <button class="lightbox-nav lightbox-next" title="Next image (Right Arrow)" aria-label="Next image">&#8250;</button>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const l = document.querySelector('.lightbox');
+  if (!l) return;
+  const i = l.querySelector('img'),
+        c = l.querySelector('figcaption'),
+        b = l.querySelector('.lightbox-close'),
+        prevBtn = l.querySelector('.lightbox-prev'),
+        nextBtn = l.querySelector('.lightbox-next');
+  
+  let currentGallery = [];
+  let currentIndex = 0;
+
+  function updateLightbox() {
+    if (currentGallery.length === 0) return;
+    const t = currentGallery[currentIndex];
+    const imgInThumb = t.querySelector('img');
+    i.src = t.dataset.full || (imgInThumb ? imgInThumb.src : '');
+    const capText = t.dataset.caption || '';
+    const counterText = currentGallery.length > 1 ? ` (${currentIndex + 1}/${currentGallery.length})` : '';
+    c.textContent = capText + counterText;
+    
+    if (currentGallery.length > 1) {
+      if (prevBtn) prevBtn.style.display = 'flex';
+      if (nextBtn) nextBtn.style.display = 'flex';
+    } else {
+      if (prevBtn) prevBtn.style.display = 'none';
+      if (nextBtn) nextBtn.style.display = 'none';
+    }
+  }
+
+  document.querySelectorAll('.gallery').forEach(gal => {
+    const thumbs = Array.from(gal.querySelectorAll('.gthumb'));
+    thumbs.forEach((t, idx) => {
+      if (!t.dataset.full) {
+        const m = t.querySelector('img');
+        if (m) t.dataset.full = m.src;
+      }
+      t.onclick = () => {
+        currentGallery = thumbs;
+        currentIndex = idx;
+        updateLightbox();
+        l.classList.add('open');
+      };
+    });
+  });
+
+  if (b) b.onclick = () => l.classList.remove('open');
+  if (prevBtn) prevBtn.onclick = (e) => { e.stopPropagation(); currentIndex = (currentIndex - 1 + currentGallery.length) % currentGallery.length; updateLightbox(); };
+  if (nextBtn) nextBtn.onclick = (e) => { e.stopPropagation(); currentIndex = (currentIndex + 1) % currentGallery.length; updateLightbox(); };
+  l.onclick = (e) => { if (e.target === l) l.classList.remove('open'); };
+  document.addEventListener('keydown', (e) => {
+    if (!l.classList.contains('open')) return;
+    if (e.key === 'Escape') l.classList.remove('open');
+    if (e.key === 'ArrowLeft' && currentGallery.length > 1) {
+      currentIndex = (currentIndex - 1 + currentGallery.length) % currentGallery.length;
+      updateLightbox();
+    }
+    if (e.key === 'ArrowRight' && currentGallery.length > 1) {
+      currentIndex = (currentIndex + 1) % currentGallery.length;
+      updateLightbox();
+    }
+  });
+});
+</script>
+</body>
 </html>
